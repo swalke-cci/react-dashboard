@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -26,6 +26,8 @@ import Widget from '../../components/Widget';
 
 import { fetchPosts } from '../../actions/posts';
 import s from './Dashboard.module.scss';
+import EditTopic from '../../components/Topic/editTopic';
+import DeleteTopic from '../../components/Topic/deleteTopic';
 
 class Dashboard extends Component {
   /* eslint-disable */
@@ -42,17 +44,34 @@ class Dashboard extends Component {
   };
 
   state = {
-    isDropdownOpened: false
+    isDropdownOpened: false,
+    topics: [],
+
   };
 
   componentDidMount() {
-    if(process.env.NODE_ENV === "development") {
-      this.props.dispatch(fetchPosts());      
+    if (process.env.NODE_ENV === "development") {
+      this.props.dispatch(fetchPosts());
     }
+    this.getAllTopics()
+    console.log(this.state.topics)
+    console.log("mlounted")
+  }
+
+  getAllTopics = () => {
+    var requestOptions = {
+      method: 'GET',
+      redirect: 'follow'
+    };
+
+    fetch(`${process.env.REACT_APP_URL}/topic`, requestOptions)
+      .then(response => response.json())
+      .then(result => this.setState({ topics: [...result] }))
+      .catch(error => console.log('error', error));
   }
 
   formatDate = (str) => {
-    return str.replace(/,.*$/,"");
+    return str.replace(/,.*$/, "");
   }
 
   toggleDropdown = () => {
@@ -83,7 +102,7 @@ class Dashboard extends Component {
                   </div>
                   <h5 className="mt-0 mb-3">
                     <i className="fa fa-user mr-xs opacity-70" />{' '}
-                    Users
+                    Topics
                   </h5>
                 </div>
               }
@@ -91,45 +110,31 @@ class Dashboard extends Component {
               <Table responsive borderless className={cx('mb-0', s.usersTable)}>
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Status</th>
+                    <th>Topic</th>
+                    <th>Objective</th>
+                    <th>Category</th>
+                    <th>Level</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Alice</td>
-                    <td>alice@email.com</td>
-                    <td>
-                      <span className="py-0 px-1 bg-success rounded text-white">active</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td>Bob</td>
-                    <td>bob@email.com</td>
-                    <td>
-                      <span className="py-0 px-1 bg-warning rounded text-white">delayed</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>3</td>
-                    <td>Duck</td>
-                    <td>duck@email.com</td>
-                    <td>
-                      <span className="py-0 px-1 bg-success rounded text-white">active</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>4</td>
-                    <td>Shepherd</td>
-                    <td>shepherd@email.com</td>
-                    <td>
-                      <span className="py-0 px-1 bg-danger rounded text-white">removed</span>
-                    </td>
-                  </tr>
+                  {this.state.topics.map((topic, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{topic.topic}</td>
+                        <td>{topic.objective}</td>
+                        <td>{topic.category}</td>
+                        <td>{topic.level}</td>
+                        <td>
+                          <EditTopic editTopic={topic} />
+                          {/* <img src="https://img.icons8.com/material-outlined/20/000000/trash--v1.png" /> */}
+                          {/* <i class="far fa-edit"></i> */}
+                          {/* <i class="fa fa-trash" aria-hidden="true"></i> */}
+                        </td>
+                        <td><DeleteTopic id={topic.id} /></td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </Table>
             </Widget>
@@ -196,31 +201,31 @@ class Dashboard extends Component {
             >
               <table className="table table-sm table-no-border mb-0">
                 <tbody>
-                {this.props.posts &&
-                this.props.posts.map(post => (
-                  <tr key={post.id}>
-                    <td>{this.formatDate(new Date(post.updatedAt).toLocaleString())}</td>
-                    <td>
-                      <Link to="/app/posts">{post.title}</Link>
-                    </td>
-                  </tr>
-                ))}
-                {this.props.posts &&
-                !this.props.posts.length && (
-                  mock.map(post => (
-                    <tr key={post.id}>
-                      <td>{post.updatedAt}</td>
-                      <td>
-                        <Link to="/app/posts">{post.title}</Link>
-                      </td>
+                  {this.props.posts &&
+                    this.props.posts.map(post => (
+                      <tr key={post.id}>
+                        <td>{this.formatDate(new Date(post.updatedAt).toLocaleString())}</td>
+                        <td>
+                          <Link to="/app/posts">{post.title}</Link>
+                        </td>
+                      </tr>
+                    ))}
+                  {this.props.posts &&
+                    !this.props.posts.length && (
+                      mock.map(post => (
+                        <tr key={post.id}>
+                          <td>{post.updatedAt}</td>
+                          <td>
+                            <Link to="/app/posts">{post.title}</Link>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  {this.props.isFetching && (
+                    <tr>
+                      <td colSpan="100">Loading...</td>
                     </tr>
-                  ))
-                )}
-                {this.props.isFetching && (
-                  <tr>
-                    <td colSpan="100">Loading...</td>
-                  </tr>
-                )}
+                  )}
                 </tbody>
               </table>
               <div className="d-flex justify-content-end">
