@@ -28,6 +28,7 @@ import { fetchPosts } from '../../actions/posts';
 import s from './Dashboard.module.scss';
 import EditTopic from '../../components/Topic/editTopic';
 import DeleteTopic from '../../components/Topic/deleteTopic';
+import AddTopic from '../../components/Topic/addTopic';
 
 class Dashboard extends Component {
   /* eslint-disable */
@@ -104,6 +105,7 @@ class Dashboard extends Component {
                     <i className="fa fa-user mr-xs opacity-70" />{' '}
                     Topics
                   </h5>
+                  <AddTopic />
                 </div>
               }
             >

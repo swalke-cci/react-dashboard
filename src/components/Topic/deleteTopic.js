@@ -11,7 +11,7 @@ const DeleteTopic = ({ id }) => {
             redirect: 'follow'
         };
 
-        fetch(`http://localhost:8080/topic/${id}`, requestOptions)
+        fetch(`${process.env.REACT_APP_URL}/topic/${id}`, requestOptions)
             .then(response => response.text())
             .then(result => alert("topic deleted"))
             .catch(error => console.log('error', error));
